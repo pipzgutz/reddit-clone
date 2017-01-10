@@ -15,7 +15,8 @@ export class ArticleService {
   public getArticles(): Promise<Article[]> {
     let params = new URLSearchParams();
     params.set('apiKey', newsApiKey);
-    params.set('source', 'reddit-r-all');
+    // params.set('source', 'reddit-r-all');
+    params.set('source', 'google-news');
     return this.http
       .get(`${baseUrl}/v1/articles`, {
         search: params
