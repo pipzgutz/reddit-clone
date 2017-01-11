@@ -42,6 +42,7 @@ const sortFns = {
 export class ArticleService {
   private _articles: BehaviorSubject<Article[]> = new BehaviorSubject<Article[]>([]);
   private _sources: BehaviorSubject<any> = new BehaviorSubject<any>([]);
+  private _refreshSubject: BehaviorSubject<string> = new BehaviorSubject<string>('google-news');
   private _sortByDirectionSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
   private _sortByFilterSubject: BehaviorSubject<ArticleSortOrderFn> = new BehaviorSubject<ArticleSortOrderFn>(sortByTime);
   private _filterBySubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -51,6 +52,8 @@ export class ArticleService {
   public orderedArticles: Observable<Article[]>;
 
   constructor(private http: Http) {
+    this._refreshSubject
+      .subscribe(this.getArticles.bind(this));
     this.orderedArticles =
       Observable.combineLatest(
         this._articles,
@@ -76,8 +79,12 @@ export class ArticleService {
     this._filterBySubject.next(filter);
   }
 
-  public getArticles(): void {
-    this._makeHttpRequest('/v1/articles', 'google-news')
+  public updateArticles(sourceKey: string): void {
+    this._refreshSubject.next(sourceKey);
+  }
+
+  public getArticles(sourceKey = 'google-news'): void {
+    this._makeHttpRequest('/v1/articles', sourceKey)
       .map(json => json.articles)
       .subscribe(articlesJSON => {
         const articles = articlesJSON

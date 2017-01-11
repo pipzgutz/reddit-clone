@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 import { Article } from '../article';
 import { ArticleService } from '../article.service';
@@ -13,12 +14,17 @@ import { ArticleService } from '../article.service';
 export class ArticleListComponent implements OnInit {
   private articles: Observable<Article[]>;
 
-  constructor(private articleService: ArticleService) {
+  constructor(
+    private articleService: ArticleService,
+    private activatedRoute: ActivatedRoute) {
     this.articles = articleService.orderedArticles;
   }
 
   ngOnInit() {
-    this.articleService.getArticles();
+    this.activatedRoute.params.subscribe(params => {
+      const sourceKey = params['sourceKey'];
+      this.articleService.updateArticles(sourceKey);
+    });
   }
 
 }
