@@ -42,8 +42,8 @@ const sortFns = {
 export class ArticleService {
   private _articles: BehaviorSubject<Article[]> = new BehaviorSubject<Article[]>([]);
   private _sortByDirectionSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
-  private _sortByFilterSubject: BehaviorSubject<ArticleSortOrderFn> = new BehaviorSubject<ArticleSortOrderFn>(
-    sortByTime);
+  private _sortByFilterSubject: BehaviorSubject<ArticleSortOrderFn> = new BehaviorSubject<ArticleSortOrderFn>(sortByTime);
+  private _filterBySubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   public articles: Observable<Article[]> = this._articles.asObservable();
   public orderedArticles: Observable<Article[]>;
@@ -53,18 +53,25 @@ export class ArticleService {
       Observable.combineLatest(
         this._articles,
         this._sortByFilterSubject,
-        this._sortByDirectionSubject
-      )
-        .map(([
-          articles, sorter, direction
-        ]) => {
-          return articles.sort(sorter(direction));
-        });
+        this._sortByDirectionSubject,
+        this._filterBySubject
+      ).map(([
+        articles, sorter, direction, filterStr
+      ]) => {
+        const re = new RegExp(filterStr, 'gi');
+        return articles
+          .filter(a => re.exec(a.title))
+          .sort(sorter(direction));
+      });
   }
 
   public sortBy(filter: string, direction: number): void {
     this._sortByDirectionSubject.next(direction);
     this._sortByFilterSubject.next(sortFns[filter]);
+  }
+
+  public filterBy(filter: string) {
+    this._filterBySubject.next(filter);
   }
 
   public getArticles(): void {

@@ -29,7 +29,7 @@
 
       <div class="right floated column">
         <div class="ui fluid icon input">
-          <input type="text" placeholder="Search..."/>
+          <input (keyup)="liveSearch($event)" type="text" placeholder="Search..."/>
           <i class="search icon"></i>
         </div>
       </div> <!-- right column -->
