@@ -8,7 +8,7 @@
       <div class="menu">
         <a *ngFor="let source of sources | async" 
             routerLink="/news/{{ source['id'] }}"
-            href="#" 
+            routerLinkActive="active"
             class="item news-item">
           <img src="{{ source['urlsToLogos']['small'] }}" alt="" class="ui avatar image" />
           <span class="side-news-item">
