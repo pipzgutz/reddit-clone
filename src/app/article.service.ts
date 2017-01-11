@@ -6,12 +6,66 @@ import { environment } from '../environments/environment';
 
 import { Article } from './article';
 
+/*
+ * [].sort(compare(a, b))
+ * return value
+ *  0 == they are equal in sort
+ *  1 == a comes before b
+ *  -1 == b comes before a
+ */
+interface ArticleSortFn {
+  (a: Article, b: Article): number;
+}
+
+interface ArticleSortOrderFn {
+  (direction: number): ArticleSortFn;
+}
+
+const sortByTime: ArticleSortOrderFn =
+  (direction: number) =>
+    (a: Article, b: Article) => {
+      return direction * (b.publishedAt.getTime() - a.publishedAt.getTime());
+    };
+
+const sortByVotes: ArticleSortOrderFn =
+  (direction: number) =>
+    (a: Article, b: Article) => {
+      return direction * (b.votes - a.votes);
+    };
+
+const sortFns = {
+  'Time': sortByTime,
+  'Votes': sortByVotes
+};
+
 @Injectable()
 export class ArticleService {
   private _articles: BehaviorSubject<Article[]> = new BehaviorSubject<Article[]>([]);
-  public articles: Observable<Article[]> = this._articles.asObservable();
+  private _sortByDirectionSubject: BehaviorSubject<number> = new BehaviorSubject<number>(1);
+  private _sortByFilterSubject: BehaviorSubject<ArticleSortOrderFn> = new BehaviorSubject<ArticleSortOrderFn>(
+    sortByTime);
 
-  constructor(private http: Http) { }
+  public articles: Observable<Article[]> = this._articles.asObservable();
+  public orderedArticles: Observable<Article[]>;
+
+  constructor(private http: Http) {
+    this.orderedArticles =
+      Observable.combineLatest(
+        this._articles,
+        this._sortByFilterSubject,
+        this._sortByDirectionSubject
+      )
+        .map(([
+          articles, sorter, direction
+        ]) => {
+          return articles.sort(sorter(direction));
+        });
+  }
+
+  public sortBy(filter: string, direction: number): void {
+    this._sortByDirectionSubject.next(direction);
+    this._sortByFilterSubject.next(sortFns[filter]);
+  }
 
   public getArticles(): void {
     // TODO make the http request -> Observable

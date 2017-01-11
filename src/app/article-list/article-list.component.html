@@ -1,4 +1,5 @@
 <div class="ui divided items">
+  <app-article-list-header></app-article-list-header>
   <app-article *ngFor="let article of articles | async" [article]="article" class="item">
   </app-article>
 </div>
