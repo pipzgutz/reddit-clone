@@ -1,3 +1,18 @@
-<div id="sidebar">
-  sidebar will go here
-</div>
+<div class="sidebar-container">
+  <div class="ui container visible fixed inverted left vertical sidebar menu">
+    <div class="item">
+      <div class="header">News sources</div>
+    </div> <!-- item -->
+
+    <div class="item">
+      <div class="menu">
+        <a *ngFor="let source of sources | async" href="#" class="item news-item">
+          <img src="{{ source['urlsToLogos']['small'] }}" alt="" class="ui avatar image" />
+          <span class="side-news-item">
+          {{ source['name'] }}
+        </span>
+        </a>
+      </div> <!-- menu -->
+    </div> <!-- item -->
+  </div> <!-- sidebar menu container -->
+</div> <!-- sidebar-container -->
